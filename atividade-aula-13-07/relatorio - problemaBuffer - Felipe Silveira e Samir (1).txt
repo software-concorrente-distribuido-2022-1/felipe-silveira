@@ -1,0 +1,24 @@
+Entrada:
+Executando um consumidor e um produtor, o consumidor irá chamar quatro vezes o método get e o produtor irá chamar quatro
+vezes o método set, passando o valor da iteração no set (1 a 4)
+
+Saida:
+Consumer reads -1
+Producer writes 1
+Consumer reads 1
+Consumer reads 1
+Producer writes 2
+Consumer reads 2
+Consumer read values totaling: 3.
+Terminating Consumer.
+Producer writes 3
+Producer writes 4
+Producer done producing.
+Terminating Producer.
+
+Justificativa:
+
+O problema com essa implementação é que o buffer não é sincronizado e não tem uma forma de validar se o buffer está sendo
+utilizado no momento do acesso ou se ele está cheio ou vazio, para barrar o acesso de produtores ou consumidores.
+Com essa implementação seria possivel que o valor passado para o consumer seja diferente do valor registrado no console,
+já que o valor do buffer estaria acessivel a outras threads para ser alterado nesse periodo entre duas operações.
