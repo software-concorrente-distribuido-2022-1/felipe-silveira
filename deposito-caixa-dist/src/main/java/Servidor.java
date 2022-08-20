@@ -1,16 +1,14 @@
 import java.net.*;
 import java.io.*;
+import java.util.List;
+import java.util.Map;
 
 public class Servidor {
-    OperadorServidorAbstract operadorServidor;
-    public Servidor(OperadorServidorAbstract operadorServidor) {
-        this.operadorServidor = operadorServidor;
-    }
-    public static void executa(Map parametros) throws IOException {
+    public static void main(String[] args) throws IOException {
         int porta = 8080;
         int backlog = 5;
-        Socket socketCliente = null;
-        ServerSocket socketServidor = null;
+        Socket socketCliente;
+        ServerSocket socketServidor;
         while (true) {
             try {
                 socketServidor = new ServerSocket(porta, backlog);
@@ -28,34 +26,25 @@ public class Servidor {
                 System.err.println("Erro de E/S " + e);
                 System.exit(1);
             }
-            new Conexao(socketCliente, operadorServidor, parametros).start();
+            new Conexao(socketCliente, new Deposito()).start();
         }
     }
 }
 
 class Conexao extends Thread {
-
-    final String msgBadRqt = "400 Bad Request";
     OperadorServidorAbstract operadorServidor;
     Socket socketCliente;
-    Map parametros;
 
-    Conexao(Socket aSocketCliente, OperadorServidorAbstract operadorServidor, Map parametros) throws IOException {
+    Conexao(Socket aSocketCliente, OperadorServidorAbstract operadorServidor) throws IOException {
         this.socketCliente = aSocketCliente;
         this.operadorServidor = operadorServidor;
-        this.parametros = parametros;
     }
 
     public void run() {
-        PrintWriter saida = null;
-        BufferedReader entrada = null;
-        InetAddress endCliente = this.socketCliente.getInetAddress();
-        String mensagem = null;
-        String linhaArq = null;
         try {
-            saida = new PrintWriter(this.socketCliente.getOutputStream(), true);
-            entrada = new BufferedReader(new InputStreamReader(this.socketCliente.getInputStream()));
-            operadorServidor.realizaOperacao(saida, entrada, parametros);
+            PrintWriter saida = new PrintWriter(this.socketCliente.getOutputStream(), true);
+            BufferedReader entrada = new BufferedReader(new InputStreamReader(this.socketCliente.getInputStream()));
+            operadorServidor.realizaOperacao(saida, entrada);
             socketCliente.close();
             saida.close();
             entrada.close();
